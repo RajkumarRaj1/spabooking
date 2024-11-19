@@ -8,6 +8,7 @@ AuthRouter.post("/signin", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({
+      success: false,
       message: "email or password is not provider",
     });
   }
@@ -18,6 +19,7 @@ AuthRouter.post("/signin", async (req, res) => {
     if (result && result._id) {
       if (result.password === password) {
         return res.status(200).json({
+          success: true,
           token: generateToken(
             {
               name: result.name,
@@ -30,17 +32,19 @@ AuthRouter.post("/signin", async (req, res) => {
         });
       } else {
         return res.status(401).json({
+          success: false,
           message: "email or pwd is invalid",
         });
       }
     } else {
       return res.status(404).json({
+        success: false,
         message: "account does not exists",
       });
-    
     }
   } catch (error) {
     return res.status(500).json({
+      success: false,
       message: "something went wrong",
     });
   }

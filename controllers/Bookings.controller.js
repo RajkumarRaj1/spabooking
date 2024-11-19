@@ -2,6 +2,7 @@ const BookingModel = require("../model/Booking.model");
 const {
   bookingCreationGuard,
   bookingDeletionGuard,
+  bookingReadAllGuard,
 } = require("../middleware/booking.middleware");
 
 const BookingRouter = require("express").Router();
@@ -30,7 +31,100 @@ BookingRouter.post("/create", bookingCreationGuard, async (req, res) => {
     });
 });
 // get-method
-BookingRouter.get("/", async (req, res) => {});
+// get all  the bookings
+BookingRouter.get("/", bookingReadAllGuard, async (req, res) => {
+  try {
+    const bookings = await BookingModel.find();
+    if (bookings && bookings.length > 0) {
+      return res.status(200).json({
+        message: "All bookings fetched successfully",
+        data: bookings,
+      });
+    } else {
+      return res.status(200).json({
+        message: "No bookings found",
+        data: [],
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      error: error.message,
+      message: "something went wrong",
+    });
+  }
+});
+
+// method=get
+// get all booking one userId
+BookingRouter.get(
+  "/userBooking/:userId",
+  bookingReadAllGuard,
+  async (req, res) => {
+    const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({
+        message: "User id is missing the req",
+      });
+    }
+
+    try {
+      const bookings = await BookingModel.find({ userId });
+      if (bookings && bookings.length > 0) {
+        return res.status(200).json({
+          message: "All bookings fetched successfully",
+          data: bookings,
+        });
+      } else {
+        return res.status(200).json({
+          message: "No bookings found",
+          data: [],
+        });
+      }
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+        message: "something went wrong",
+      });
+    }
+  }
+);
+// method=get
+// get a booking for userId
+BookingRouter.get(
+  "/userBooking/:userId/:bookingId",
+  bookingReadAllGuard,
+  async (req, res) => {
+    const { userId, bookingId } = req.params;
+    if (!bookingId) {
+      return res.status(400).json({
+        message: "User id is missing the req",
+      });
+    }
+
+    try {
+      const booking = await BookingModel.find({
+        userId,
+        _id: bookingId,
+      });
+      if (bookings && booking._id) {
+        return res.status(200).json({
+          message: " booking fetched successfully",
+          data: booking,
+        });
+      } else {
+        return res.status(200).json({
+          message: "No booking found",
+          data: [],
+        });
+      }
+    } catch (error) {
+      return res.status(400).json({
+        error: error.message,
+        message: "something went wrong",
+      });
+    }
+  }
+);
 
 // method=delete
 // delete a booking
